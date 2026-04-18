@@ -1,0 +1,7 @@
+$kind: http-request
+description: Maps Indian notes (Sa, Re, Ga...) to Western notes for a specific root scale.
+url: http://localhost:5000/map-scale?scale=C
+method: GET
+queryParams:
+  scale: C
+order: 2000
