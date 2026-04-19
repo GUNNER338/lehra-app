@@ -1,34 +1,35 @@
-import { Platform } from 'react-native';
+import { raags } from '../data/raagData';
 
-// If testing on a physical device, replace '192.168.1.11' with your computer's local IP address
-const BASE_URL = 'http://192.168.1.11:5000';
+export const fetchAllRaags = async () => {
+  try {
+    // Simulating local data access
+    return Object.keys(raags);
+  } catch (error) {
+    console.error('Error getting raag list:', error);
+    return ['Yaman']; // Fallback
+  }
+};
 
 export const fetchRaagData = async (raagName: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/raag/${raagName.toLowerCase()}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
+    const data = raags[raagName.toLowerCase()];
+    if (!data) throw new Error('Raag not found');
+    return data;
   } catch (error) {
-    console.error('Error fetching raag data:', error);
+    console.error('Error getting raag data:', error);
     throw error;
   }
 };
 
 export const fetchScaleMapping = async (scale: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/map-scale?scale=${encodeURIComponent(scale)}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
+    // Simple mock scale mapping
+    return {
+      baseScale: scale,
+      transposition: 0
+    };
   } catch (error) {
-    console.error('Error fetching scale mapping:', error);
+    console.error('Error getting scale mapping:', error);
     throw error;
   }
 };

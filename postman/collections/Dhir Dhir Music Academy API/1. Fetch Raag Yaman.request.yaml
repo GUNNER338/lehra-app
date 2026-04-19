@@ -1,5 +1,0 @@
-$kind: http-request
-description: Returns the lehra pattern and notes for Raag Yaman.
-url: http://localhost:5000/raag/yaman
-method: GET
-order: 1000

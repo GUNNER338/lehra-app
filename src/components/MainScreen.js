@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Play, Pause } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -7,20 +7,17 @@ import { COLORS, SPACING, SHADOWS } from '../constants/theme';
 import ScaleSelector from './ScaleSelector';
 import Dropdown from './Dropdown';
 import TempoSelector from './TempoSelector';
-import LehraEngine from './LehraEngine';
 
-import { fetchRaagData, fetchScaleMapping } from '../utils/api';
+import { fetchRaagData, fetchScaleMapping, fetchAllRaags } from '../utils/api';
 
 const SCALES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const INSTRUMENTS = ['Harmonium'];
-const RAAGS = ['Yaman'];
 
 const MainScreen = () => {
-  const engineRef = useRef(null);
-  const [isEngineReady, setIsEngineReady] = useState(false);
   const [scaleIndex, setScaleIndex] = useState(0);
   const [instrument, setInstrument] = useState(INSTRUMENTS[0]);
-  const [raag, setRaag] = useState(RAAGS[0]);
+  const [raagList, setRaagList] = useState(['Yaman']);
+  const [raag, setRaag] = useState('Yaman');
   const [tempo, setTempo] = useState(120);
   const [isPlaying, setIsPlaying] = useState(false);
   const [backendRaagData, setBackendRaagData] = useState(null);
@@ -28,37 +25,24 @@ const MainScreen = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        // Fetch list of available raags
+        const list = await fetchAllRaags();
+        if (list && list.length > 0) {
+          setRaagList(list.map(r => r.charAt(0).toUpperCase() + r.slice(1)));
+        }
+
         const data = await fetchRaagData('yaman');
         setBackendRaagData(data);
-        console.log('Backend Data Loaded:', data.raag);
+        console.log('Local Data Loaded:', data.raag);
       } catch (err) {
-        console.error('Failed to load raag from backend, using local fallback');
+        console.error('Failed to load raag data');
       }
     };
     loadInitialData();
   }, []);
 
-  useEffect(() => {
-    if (isEngineReady) {
-      engineRef.current?.setBpm(tempo);
-    }
-  }, [tempo, isEngineReady]);
-
   const togglePlay = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    
-    if (!isPlaying) {
-      if (backendRaagData) {
-        // Use integrated backend data
-        engineRef.current?.playPattern(raag, SCALES[scaleIndex], tempo, backendRaagData.notes);
-      } else {
-        // Fallback to local data
-        engineRef.current?.play(raag, SCALES[scaleIndex], tempo);
-      }
-    } else {
-      engineRef.current?.stop();
-    }
-    
     setIsPlaying(!isPlaying);
   };
 
@@ -75,7 +59,7 @@ const MainScreen = () => {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dhir Dhir Music Academy</Text>
-        <Text style={styles.headerSubtitle}>Lehra Control Panel</Text>
+        <Text style={styles.headerSubtitle}>Lehra UI Preview</Text>
       </View>
 
       <ScrollView 
@@ -100,7 +84,7 @@ const MainScreen = () => {
           
           <Dropdown 
             label="Select Raag" 
-            options={RAAGS} 
+            options={raagList} 
             selectedValue={raag} 
             onValueChange={setRaag} 
           />
@@ -110,23 +94,14 @@ const MainScreen = () => {
 
         <TempoSelector tempo={tempo} setTempo={setTempo} />
 
-        {!isEngineReady && (
-          <View style={{ marginTop: 20 }}>
-            <ActivityIndicator color={COLORS.primary} size="small" />
-            <Text style={[styles.headerSubtitle, { marginTop: 5 }]}>Loading Harmonium...</Text>
-          </View>
-        )}
-
         <TouchableOpacity 
           style={[
             styles.playButton, 
             isPlaying ? styles.pauseButtonActive : styles.playButtonActive,
-            (!isEngineReady) && { opacity: 0.5 },
             SHADOWS.medium
           ]}
           onPress={togglePlay}
           activeOpacity={0.8}
-          disabled={!isEngineReady}
         >
           {isPlaying ? (
             <Pause size={32} color={COLORS.white} fill={COLORS.white} />
@@ -138,11 +113,6 @@ const MainScreen = () => {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-
-      <LehraEngine 
-        ref={engineRef} 
-        onLoad={() => setIsEngineReady(true)} 
-      />
     </SafeAreaView>
   );
 };

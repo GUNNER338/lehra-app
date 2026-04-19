@@ -1,6 +1,0 @@
-$kind: http-request
-url: http://localhost:5000/map-scale?scale=D%23
-method: GET
-queryParams:
-  scale: D#
-order: 3000
