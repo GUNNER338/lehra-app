@@ -12,12 +12,14 @@ import { fetchRaagData, fetchScaleMapping, fetchAllRaags } from '../utils/api';
 
 const SCALES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const INSTRUMENTS = ['Harmonium'];
+const TAALS = ['Teentaal'];
 
 const MainScreen = () => {
   const [scaleIndex, setScaleIndex] = useState(0);
   const [instrument, setInstrument] = useState(INSTRUMENTS[0]);
   const [raagList, setRaagList] = useState(['Yaman']);
   const [raag, setRaag] = useState('Yaman');
+  const [taal, setTaal] = useState(TAALS[0]);
   const [tempo, setTempo] = useState(120);
   const [isPlaying, setIsPlaying] = useState(false);
   const [backendRaagData, setBackendRaagData] = useState(null);
@@ -87,6 +89,13 @@ const MainScreen = () => {
             options={raagList} 
             selectedValue={raag} 
             onValueChange={setRaag} 
+          />
+
+          <Dropdown 
+            label="Select Taal" 
+            options={TAALS} 
+            selectedValue={taal} 
+            onValueChange={setTaal} 
           />
         </View>
 
