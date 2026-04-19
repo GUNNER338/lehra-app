@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, FlatList, Animated } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
 import { COLORS, SHADOWS, SPACING } from '../constants/theme';
-import { ChevronDown } from 'lucide-react-native';
+import { ChevronDown, Check } from 'lucide-react-native';
 
 const Dropdown = ({ label, options, selectedValue, onValueChange }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -15,17 +15,18 @@ const Dropdown = ({ label, options, selectedValue, onValueChange }) => {
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <TouchableOpacity 
-        style={[styles.dropdownButton, SHADOWS.soft]} 
+        style={[styles.dropdownButton, SHADOWS.light]} 
         onPress={() => setModalVisible(true)}
+        activeOpacity={0.8}
       >
         <Text style={styles.selectedText}>{selectedValue}</Text>
-        <ChevronDown size={20} color={COLORS.primary} opacity={0.5} />
+        <ChevronDown size={20} color={COLORS.accent} />
       </TouchableOpacity>
 
       <Modal
         visible={modalVisible}
         transparent={true}
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setModalVisible(false)}
       >
         <TouchableOpacity 
@@ -33,13 +34,15 @@ const Dropdown = ({ label, options, selectedValue, onValueChange }) => {
           activeOpacity={1} 
           onPress={() => setModalVisible(false)}
         >
-          <View style={[styles.modalContent, SHADOWS.medium]}>
+          <View style={[styles.modalContent, SHADOWS.premium]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label}</Text>
+              <View style={styles.modalHandle} />
             </View>
             <FlatList
               data={options}
               keyExtractor={(item) => item}
+              contentContainerStyle={styles.listContent}
               renderItem={({ item }) => (
                 <TouchableOpacity 
                   style={[
@@ -54,6 +57,9 @@ const Dropdown = ({ label, options, selectedValue, onValueChange }) => {
                   ]}>
                     {item}
                   </Text>
+                  {selectedValue === item && (
+                    <Check size={18} color={COLORS.accent} />
+                  )}
                 </TouchableOpacity>
               )}
             />
@@ -67,69 +73,85 @@ const Dropdown = ({ label, options, selectedValue, onValueChange }) => {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   label: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.textSecondary,
-    fontFamily: 'Outfit_400Regular',
-    marginBottom: 6,
+    fontFamily: 'Outfit_700Bold',
+    marginBottom: 8,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1.5,
+    fontWeight: '700',
+    paddingLeft: 4,
   },
   dropdownButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: COLORS.white,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-    borderRadius: 16,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md + 2,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
+    borderColor: COLORS.divider,
   },
   selectedText: {
     fontSize: 16,
     color: COLORS.primary,
     fontFamily: 'Outfit_400Regular',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SPACING.xl,
+    backgroundColor: 'rgba(26, 35, 126, 0.4)', // Themed overlay
+    justifyContent: 'flex-end',
   },
   modalContent: {
     width: '100%',
     backgroundColor: COLORS.white,
-    borderRadius: 24,
-    maxHeight: '60%',
-    overflow: 'hidden',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    maxHeight: '70%',
+    paddingBottom: SPACING.xxl,
   },
   modalHeader: {
     padding: SPACING.lg,
+    alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: COLORS.background,
+    borderBottomColor: COLORS.divider,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: COLORS.divider,
+    borderRadius: 2,
+    position: 'absolute',
+    top: 12,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.primary,
     fontFamily: 'Outfit_700Bold',
+    marginTop: 8,
+  },
+  listContent: {
+    paddingHorizontal: SPACING.md,
   },
   optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: SPACING.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F8F8F8',
+    borderRadius: 16,
+    marginVertical: 4,
   },
   selectedOption: {
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: COLORS.primary + '08',
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 17,
     color: COLORS.primary,
     fontFamily: 'Outfit_400Regular',
   },
